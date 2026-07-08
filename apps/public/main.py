@@ -1,3 +1,4 @@
+from core.search.search_service import search_items
 from core.database.initialize import initialize_database
 
 import sys
@@ -18,6 +19,7 @@ from PySide6.QtWidgets import (
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
 
         self.setWindowTitle("RO Database Explorer - Public Edition")
         self.resize(1100, 700)
@@ -40,6 +42,7 @@ class MainWindow(QMainWindow):
 
         search_button = QPushButton("検索")
         search_button.setMinimumHeight(42)
+        search_button.clicked.connect(self.on_search)
 
         search_row.addWidget(self.search_box)
         search_row.addWidget(search_button)
@@ -55,10 +58,10 @@ class MainWindow(QMainWindow):
         result_title = QLabel("検索結果")
         result_title.setStyleSheet("font-size: 18px; font-weight: bold;")
 
-        result_area = QLabel("まだデータはありません。\n次の段階でSQLiteと検索エンジンを接続します。")
-        result_area.setAlignment(Qt.AlignCenter)
-        result_area.setMinimumHeight(300)
-        result_area.setStyleSheet(
+        self.result_area = QLabel("まだデータはありません。\n次の段階でSQLiteと検索エンジンを接続します。")
+        self.result_area.setAlignment(Qt.AlignCenter)
+        self.result_area.setMinimumHeight(300)
+        self.result_area.setStyleSheet(
             """
             QLabel {
                 border: 1px solid #ccc;
@@ -75,7 +78,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(search_row)
         layout.addLayout(category_row)
         layout.addWidget(result_title)
-        layout.addWidget(result_area)
+        layout.addWidget(self.result_area)
 
         self.setCentralWidget(root)
 
@@ -84,6 +87,25 @@ class MainWindow(QMainWindow):
         self.setStatusBar(status)
 
 
+    def on_search(self):
+        keyword = self.search_box.text().strip()
+
+        if not keyword:
+            self.result_area.setText("検索キーワードを入力してください。")
+            return
+
+        results = search_items(keyword)
+
+        if not results:
+            self.result_area.setText("検索結果はありません。")
+            return
+
+        lines = []
+        for item_id, name in results:
+            lines.append(f"{item_id}  {name}")
+
+        self.result_area.setText("\n".join(lines))
+        
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()
