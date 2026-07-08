@@ -1,3 +1,5 @@
+from core.database.initialize import initialize_database
+
 import sys
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -90,4 +92,5 @@ def main():
 
 
 if __name__ == "__main__":
+    initialize_database()
     main()
