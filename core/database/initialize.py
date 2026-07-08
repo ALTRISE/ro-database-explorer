@@ -13,13 +13,16 @@ SQLiteデータベースの初期化を担当する。
 テーブル作成・初期化処理をここで管理する。
 """
 
+from .connection import connect, DATABASE_PATH
 from .connection import connect
 
 
 def initialize_database():
+    print("Database Path:", DATABASE_PATH)
     """SQLiteデータベースを初期化する"""
 
     conn = connect()
+    print("Database Connected!")
     cursor = conn.cursor()
 
     # =====================================================
@@ -43,6 +46,16 @@ def initialize_database():
         name TEXT NOT NULL
     )
     """)
+
+    cursor.executemany("""
+    INSERT OR IGNORE INTO items (id, name)
+    VALUES (?, ?)
+    """, [
+        (1001, "ポリン"),
+        (1002, "ルナティック"),
+        (1003, "ポポリン"),
+        (1004, "マーリン"),
+    ])
 
     # =====================================================
     # Future Tables
